@@ -6,7 +6,7 @@
     <title>File Upload with Progress Bar</title>
     <style>
         #progress-container {
-            width: 100px;
+            width: 200px;
             background-color: #f3f3f3;
             margin-top: 20px;
         }
@@ -36,18 +36,34 @@
                 const fileInfo = document.getElementById('file-info');
                 fileInfo.textContent = `Tamaño del archivo: ${file.size} bytes`;
 
-                // Simular el cargador
-                const progressBar = document.getElementById('progress-bar');
-                let progress = 0;
-                const interval = setInterval(() => {
-                    if (progress >= 100) {
-                        clearInterval(interval);
-                    } else {
-                        progress += 10; // Incremento del progreso
-                        progressBar.style.width = `${progress}%`;
-                        progressBar.textContent = `${progress}%`;
+                // Crear un FileReader para leer el archivo
+                const reader = new FileReader();
+                
+                // Actualizar el progreso de la barra
+                reader.onprogress = function(event) {
+                    if (event.lengthComputable) {
+                      // Simular el cargador
+                        const progressBar = document.getElementById('progress-bar');
+                        let progress = 0;
+                        const interval = setInterval(() => {
+                            if (progress >= 100) {
+                                clearInterval(interval);
+                            } else {
+                                progress += 10; // Incremento del progreso
+                                progressBar.style.width = `${progress}%`;
+                                progressBar.textContent = `${progress}%`;
+                            }
+                        }, 100); // Tiempo en milisegundos
                     }
-                }, 100); // Tiempo en milisegundos
+                };
+
+                // Leer el archivo como ArrayBuffer (o cualquier otro formato adecuado)
+                reader.onloadend = function() {
+                    const progressBar = document.getElementById('progress-bar');
+                    progressBar.textContent = "Carga Completa";
+                };
+                
+                reader.readAsArrayBuffer(file);
             }
         });
     </script>
