@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Upload with Progress Bar</title>
+    <title>Subir Archivo</title>
     <style>
-        #progress-container {
+        #progress-bar {
             width: 200px;
             background-color: #f3f3f3;
-            margin-top: 20px;
+            border: 1px solid #ddd;
+            margin-top: 10px;
         }
-        #progress-bar {
+        #progress-bar-fill {
             width: 0%;
             height: 30px;
             background-color: #4caf50;
@@ -21,49 +22,42 @@
     </style>
 </head>
 <body>
-    <h2>Subir Archivo</h2>
     <input type="file" id="file-input">
-    <p id="file-info"></p>
-    <div id="progress-container">
-        <div id="progress-bar">0%</div>
+    <div id="file-info"></div>
+    <div id="progress-bar">
+        <div id="progress-bar-fill">0%</div>
     </div>
 
     <script>
         document.getElementById('file-input').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
-                // Mostrar el tamaño del archivo
-                const fileInfo = document.getElementById('file-info');
-                fileInfo.textContent = `Tamaño del archivo: ${file.size} bytes`;
+                const fileSize = file.size; // Tamaño en bytes
+                const fileSizeKB = (fileSize / 1024).toFixed(2); // Tamaño en KB
+                document.getElementById('file-info').textContent = `Tamaño del archivo: ${fileSizeKB} KB`;
 
-                // Crear un FileReader para leer el archivo
                 const reader = new FileReader();
-                
-                // Actualizar el progreso de la barra
+                reader.onloadstart = function() {
+                    console.log('Carga iniciada');
+                };
                 reader.onprogress = function(event) {
                     if (event.lengthComputable) {
-                      // Simular el cargador
-                        const progressBar = document.getElementById('progress-bar');
-                        let progress = 0;
-                        const interval = setInterval(() => {
-                            if (progress >= 100) {
-                                clearInterval(interval);
-                            } else {
-                                progress += 10; // Incremento del progreso
-                                progressBar.style.width = `${progress}%`;
-                                progressBar.textContent = `${progress}%`;
-                            }
-                        }, 100); // Tiempo en milisegundos
+                        const progress = (event.loaded / event.total) * 100;
+                        const progressBarFill = document.getElementById('progress-bar-fill');
+                        progressBarFill.style.width = progress + '%';
+                        progressBarFill.textContent = progress.toFixed(2) + '%';
                     }
                 };
-
-                // Leer el archivo como ArrayBuffer (o cualquier otro formato adecuado)
-                reader.onloadend = function() {
-                    const progressBar = document.getElementById('progress-bar');
-                    progressBar.textContent = "Carga Completa";
+                reader.onload = function() {
+                    console.log('Carga completada');
+                    const progressBarFill = document.getElementById('progress-bar-fill');
+                    progressBarFill.style.width = '100%';
+                    progressBarFill.textContent = '100%';
                 };
-                
-                reader.readAsArrayBuffer(file);
+                reader.onerror = function() {
+                    console.error('Error al leer el archivo');
+                };
+                reader.readAsDataURL(file);
             }
         });
     </script>
